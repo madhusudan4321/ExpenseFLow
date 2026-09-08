@@ -107,6 +107,16 @@ ExpenseFlow/
 
 ## How to Run Locally
 
+### 🚀 Quick 1-Click Launchers (Windows)
+Double-click or run from PowerShell:
+- **Run Entire System (Backend + Frontend)**: `.\run-app.bat`
+- **Run Backend Only**: `.\run-backend.bat`
+- **Run Frontend Only**: `.\run-frontend.bat`
+
+---
+
+### Manual Step-by-Step Instructions
+
 ### 1. Database Setup (MySQL)
 Ensure MySQL server is running on port `3306`.
 Create database `expenseflow_db` (Spring Boot will auto-create tables via Hibernate):

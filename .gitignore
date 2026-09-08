@@ -55,3 +55,14 @@ backend/target/
 *.db
 tmp/
 temp/
+
+# Local Launcher Scripts & Executables containing local passwords
+run-backend.bat
+run-frontend.bat
+run-app.bat
+run-backend.sh
+*.bat
+!backend/mvnw.cmd
+*.sh
+!backend/mvnw
+
