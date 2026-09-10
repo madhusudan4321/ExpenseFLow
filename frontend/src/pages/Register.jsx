@@ -27,7 +27,19 @@ export const Register = () => {
       await register({ name, email, password });
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Email might already exist.');
+      console.error('Registration error:', err);
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Server connection timed out. Render backend might be waking up from sleep. Please try again in 10-15 seconds.');
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.data?.errors) {
+        const errObj = err.response.data.errors;
+        setError(typeof errObj === 'object' ? Object.values(errObj).join(', ') : String(errObj));
+      } else if (err.message === 'Network Error') {
+        setError('Unable to reach server. Please check your connection or CORS configuration.');
+      } else {
+        setError(err.message || 'Registration failed. Email might already exist.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -122,7 +134,12 @@ export const Register = () => {
             disabled={isSubmitting}
             style={{ width: '100%', marginTop: '1rem', padding: '0.85rem' }}
           >
-            {isSubmitting ? <div className="spinner" style={{ width: '20px', height: '20px' }} /> : (
+            {isSubmitting ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div className="spinner" style={{ width: '18px', height: '18px' }} />
+                <span style={{ fontSize: '0.85rem' }}>Connecting to server...</span>
+              </div>
+            ) : (
               <>
                 <UserPlus size={18} />
                 <span>Register Account</span>

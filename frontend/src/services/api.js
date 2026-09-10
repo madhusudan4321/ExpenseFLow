@@ -5,6 +5,7 @@ const API_BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.repla
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 45000, // 45 seconds timeout for cold starts
   headers: {
     'Content-Type': 'application/json',
   },
