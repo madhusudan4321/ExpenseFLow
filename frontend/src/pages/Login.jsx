@@ -21,7 +21,16 @@ export const Login = () => {
       await login({ email, password });
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
+      console.error('Login error:', err);
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Server connection timed out. The backend might be waking up from sleep. Please try again in 10-15 seconds.');
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message === 'Network Error') {
+        setError('Unable to reach server. Please check your connection or try again shortly.');
+      } else {
+        setError('Invalid email or password. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

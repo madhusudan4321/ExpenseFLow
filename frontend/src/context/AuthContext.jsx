@@ -20,13 +20,18 @@ export const AuthProvider = ({ children }) => {
           localStorage.setItem('user', JSON.stringify(userData));
         } catch (err) {
           console.error('Auth verification failed:', err);
-          logout();
+          // Only logout if the server explicitly rejects the token (401)
+          // Don't logout on network errors, timeouts, or cold starts
+          if (err.response?.status === 401) {
+            logout();
+          }
         }
       }
       setLoading(false);
     };
     checkAuth();
-  }, [token]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only on mount — login/register handle token setting directly
 
   const login = async (credentials) => {
     const data = await authService.login(credentials);
