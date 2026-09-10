@@ -9,7 +9,7 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: process.env.VITE_API_URL || 'https://expenseflow-backend-r117.onrender.com',
         changeOrigin: true,
         secure: false,
       },
