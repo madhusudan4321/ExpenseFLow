@@ -6,6 +6,7 @@ import com.expenseflow.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -30,4 +31,11 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     BigDecimal sumByUserAndCategoryAndDateBetween(@Param("user") User user, @Param("category") Category category, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     List<Expense> findTop5ByUserOrderByDateDescCreatedAtDesc(User user);
+
+    List<Expense> findTop10ByUserOrderByDateDescCreatedAtDesc(User user);
+
+    @Query("SELECT COALESCE(c.name, 'Other'), SUM(e.amount) FROM Expense e LEFT JOIN e.category c WHERE e.user = :user GROUP BY COALESCE(c.name, 'Other')")
+    List<Object[]> sumAmountGroupedByCategory(@Param("user") User user);
+
+    long countByUser(User user);
 }

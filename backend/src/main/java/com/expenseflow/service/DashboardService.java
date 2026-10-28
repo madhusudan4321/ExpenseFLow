@@ -71,12 +71,12 @@ public class DashboardService {
 
         BigDecimal currentMonthBudgetRemaining = currentMonthBudgetTotal.subtract(currentMonthSpending);
 
-        // 3. Recent Transactions (Top 10 combined)
-        List<Expense> expenses = expenseRepository.findByUserOrderByDateDescCreatedAtDesc(user);
-        List<Income> incomes = incomeRepository.findByUserOrderByDateDescCreatedAtDesc(user);
+        // 3. Recent Transactions (Top 10 combined) — fetch only top 10 from each, not all
+        List<Expense> recentExpenses = expenseRepository.findTop10ByUserOrderByDateDescCreatedAtDesc(user);
+        List<Income> recentIncomes = incomeRepository.findTop10ByUserOrderByDateDescCreatedAtDesc(user);
 
         List<TransactionDTO> transactions = new ArrayList<>();
-        for (Expense e : expenses) {
+        for (Expense e : recentExpenses) {
             String catName = e.getCategory() != null ? e.getCategory().getName() : "Uncategorized";
             transactions.add(new TransactionDTO(
                     e.getId(),
@@ -90,7 +90,7 @@ public class DashboardService {
             ));
         }
 
-        for (Income i : incomes) {
+        for (Income i : recentIncomes) {
             transactions.add(new TransactionDTO(
                     i.getId(),
                     "INCOME",
@@ -117,11 +117,13 @@ public class DashboardService {
                 .limit(10)
                 .collect(Collectors.toList());
 
-        // 4. Expense by Category Breakdown
-        Map<String, BigDecimal> categoryExpenses = new HashMap<>();
-        for (Expense e : expenses) {
-            String catName = e.getCategory() != null ? e.getCategory().getName() : "Other";
-            categoryExpenses.put(catName, categoryExpenses.getOrDefault(catName, BigDecimal.ZERO).add(e.getAmount()));
+        // 4. Expense by Category Breakdown — use database aggregation instead of loading all expenses
+        Map<String, BigDecimal> categoryExpenses = new LinkedHashMap<>();
+        List<Object[]> categoryResults = expenseRepository.sumAmountGroupedByCategory(user);
+        for (Object[] row : categoryResults) {
+            String catName = (String) row[0];
+            BigDecimal total = (BigDecimal) row[1];
+            categoryExpenses.put(catName, total);
         }
 
         // 5. Monthly Income vs Expense (Past 6 Months)

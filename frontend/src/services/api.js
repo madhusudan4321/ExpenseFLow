@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const rawApiUrl = import.meta.env.VITE_API_URL || 'https://expenseflow-backend-r117.onrender.com';
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 const API_BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.replace(/\/$/, '')}/api`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 45000, // 45 seconds timeout for cold starts
+  timeout: 15000, // 15 seconds timeout for local development
   headers: {
     'Content-Type': 'application/json',
   },

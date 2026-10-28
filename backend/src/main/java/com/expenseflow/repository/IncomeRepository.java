@@ -25,4 +25,8 @@ public interface IncomeRepository extends JpaRepository<Income, Long> {
     BigDecimal sumByUserAndDateBetween(@Param("user") User user, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     List<Income> findTop5ByUserOrderByDateDescCreatedAtDesc(User user);
+
+    List<Income> findTop10ByUserOrderByDateDescCreatedAtDesc(User user);
+
+    long countByUser(User user);
 }

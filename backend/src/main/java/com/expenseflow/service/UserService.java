@@ -31,9 +31,9 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
 
-        long expenseCount = expenseRepository.findByUserOrderByDateDescCreatedAtDesc(user).size();
-        long incomeCount = incomeRepository.findByUserOrderByDateDescCreatedAtDesc(user).size();
-        long budgetCount = budgetRepository.findByUser(user).size();
+        long expenseCount = expenseRepository.countByUser(user);
+        long incomeCount = incomeRepository.countByUser(user);
+        long budgetCount = budgetRepository.countByUser(user);
 
         return new UserProfileDTO(
                 user.getId(),
