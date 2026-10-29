@@ -8,8 +8,8 @@ export const SummaryCard = ({ title, amount, subtext, icon: Icon, color = 'var(-
       </div>
       <div className="summary-info">
         <span className="label">{title}</span>
-        <div className="value">{amount}</div>
-        {subtext && <div className="subtext">{subtext}</div>}
+        <div className="value" title={amount}>{amount}</div>
+        {subtext && <div className="subtext" title={subtext}>{subtext}</div>}
       </div>
     </div>
   );

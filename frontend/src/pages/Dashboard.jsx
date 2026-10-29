@@ -25,7 +25,7 @@ import { SummaryCard } from '../components/SummaryCard';
 import { TransactionTable } from '../components/TransactionTable';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorMessage } from '../components/ErrorMessage';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, formatCurrencyCompact } from '../utils/formatters';
 
 const CATEGORY_COLORS = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#64748b'];
 
@@ -63,6 +63,10 @@ export const Dashboard = () => {
       }))
     : [];
 
+  // Build budget subtext with line breaks to avoid overflow
+  const budgetSpent = formatCurrencyCompact(data?.currentMonthSpending);
+  const budgetRemaining = formatCurrencyCompact(data?.currentMonthBudgetRemaining);
+
   return (
     <div>
       <div className="page-header">
@@ -86,7 +90,7 @@ export const Dashboard = () => {
       <div className="summary-grid">
         <SummaryCard
           title="Total Income"
-          amount={formatCurrency(data?.totalIncome)}
+          amount={formatCurrencyCompact(data?.totalIncome)}
           subtext="Lifetime earnings"
           icon={TrendingUp}
           color="var(--income-color)"
@@ -94,7 +98,7 @@ export const Dashboard = () => {
         />
         <SummaryCard
           title="Total Expenses"
-          amount={formatCurrency(data?.totalExpenses)}
+          amount={formatCurrencyCompact(data?.totalExpenses)}
           subtext="Lifetime spending"
           icon={TrendingDown}
           color="var(--expense-color)"
@@ -102,16 +106,16 @@ export const Dashboard = () => {
         />
         <SummaryCard
           title="Current Balance"
-          amount={formatCurrency(data?.currentBalance)}
+          amount={formatCurrencyCompact(data?.currentBalance)}
           subtext="Net financial balance"
           icon={Wallet}
           color="var(--accent-primary)"
           bg="var(--accent-primary-light)"
         />
         <SummaryCard
-          title="Current Month Budget"
-          amount={formatCurrency(data?.currentMonthBudgetTotal)}
-          subtext={`Spent: ${formatCurrency(data?.currentMonthSpending)} | Rem: ${formatCurrency(data?.currentMonthBudgetRemaining)}`}
+          title="Monthly Budget"
+          amount={formatCurrencyCompact(data?.currentMonthBudgetTotal)}
+          subtext={`Spent: ${budgetSpent} · Rem: ${budgetRemaining}`}
           icon={PieIcon}
           color="var(--warning-color)"
           bg="var(--warning-light)"
@@ -119,17 +123,22 @@ export const Dashboard = () => {
       </div>
 
       {/* Analytics Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div className="analytics-grid">
         {/* Income vs Expense Bar Chart */}
         <div className="card">
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
+          <h3 className="chart-heading">
             Income vs Expense (Past 6 Months)
           </h3>
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <BarChart data={data?.monthlyComparison || []}>
                 <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={12} />
-                <YAxis stroke="var(--text-muted)" fontSize={12} />
+                <YAxis stroke="var(--text-muted)" fontSize={12} tickFormatter={(v) => {
+                  if (v >= 1_00_00_000) return `${(v / 1_00_00_000).toFixed(0)}Cr`;
+                  if (v >= 1_00_000) return `${(v / 1_00_000).toFixed(0)}L`;
+                  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K`;
+                  return v;
+                }} />
                 <Tooltip
                   contentStyle={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)', borderRadius: '8px', color: '#fff' }}
                   formatter={(value) => formatCurrency(value)}
@@ -143,7 +152,7 @@ export const Dashboard = () => {
 
         {/* Expense by Category Pie Chart */}
         <div className="card">
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
+          <h3 className="chart-heading">
             Expense Distribution by Category
           </h3>
           <div style={{ width: '100%', height: 300 }}>
